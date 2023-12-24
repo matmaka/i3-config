@@ -2,6 +2,17 @@
 
 set $mod Mod1
 
+# Define names for default workspaces for which we configure key bindings later on.
+# We use variables to avoid repeating the names in multiple places.
+# home
+set $ws1 "H"
+
+# work
+set $ws2 "W"
+
+# password manager
+set $ws3 "P"
+
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
 font pango:monospace 8
@@ -29,7 +40,7 @@ bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ to
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
 # start a terminal
-bindsym $mod+Return exec st
+bindsym $mod+Return exec st -c "ST - "$ws1; workspace $ws1
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -66,12 +77,6 @@ bindsym $mod+e layout toggle split
 # toggle tiling / floating
 bindsym $mod+Shift+space floating toggle
 
-# Define names for default workspaces for which we configure key bindings later on.
-# We use variables to avoid repeating the names in multiple places.
-set $ws1 "H"
-set $ws2 "W"
-set $ws3 "K"
-
 # switch to workspace
 bindsym $mod+1 workspace $ws1
 bindsym $mod+2 workspace $ws2
@@ -95,77 +100,93 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 
 # bindsym $mod+p exec flatpak run org.kryogenix.Pick
 # bindsym $mod+u exec kruler
-bindsym --release $mod+End exec --no-startup-id import latest-screenshot.png
-# bindsym $mod+m exec firefox
+bindsym --release $mod+Shift+End exec --no-startup-id import screenshot_$(uuidgen).png
 # bindsym $mod+b exec flatpak run org.speedcrunch.SpeedCrunch
 bindsym $mod+q exec i3lock -c 000000 -f
 bindsym $mod+space focus mode_toggle 
 bindsym $mod+r mode "resize"
-bindsym $mod+Shift+Return exec st -c "online"; workspace $ws1
+bindsym $mod+Shift+Return exec st -c "ST - "$ws2; workspace $ws2
+bindsym $mod+o workspace $ws1; exec firefox -P home
+bindsym $mod+Shift+o workspace $ws2; exec firefox -P work
 
 # hide cursor when keyboard key is pressed
 exec xbanish -i shift
 
-# browser
-# exec qutebrowser
-
 # terminal
-exec st
+exec st -c "ST - "$ws1
+exec st -c "ST - "$ws2
 
-#exec xrandr --output VGA-1 --auto --left-of LVDS-1 
 exec xrandr --output DisplayPort-0 --auto --left-of eDP
 
 # password manager
-# exec flatpak run org.keepassxc.KeePassXC
+exec keepassxc
 
 # wallpaper
 exec --no-startup-id feh --no-fehbg --bg-fill "$HOME/.desktop-bg.jpg"
 
 default_border pixel
-workspace_auto_back_and_forth yes
 
 # assign a workspace to another monitor
 workspace $ws1 output DisplayPort-0 eDP
 workspace $ws2 output DisplayPort-0 eDP
 workspace $ws3 output eDP DisplayPort-0
-# workspace $ws4 output DisplayPort-0 eDP
-# workspace $ws5 output eDP DisplayPort-0
 
+# default workspaces
+assign [ class="ST - H" ] $ws1
+assign [ class="ST - W" ] $ws2
+assign [ class="KeePassXC" ] $ws3
 
-# assign an app to a default workspace
-assign [ class="^firefox$" ] $ws1
-assign [ class="^qutebrowser$" ] $ws1
-assign [ class="online" ] $ws1
-assign [ class="^st-256color$" ] $ws3
-# assign [ class="^KeePassXC$" ] $ws4
+# password manager
+for_window [title="Auto-Type - KeePassXC"] move container to workspace current
 
-# specific settings for specific apps
-for_window [title="^Auto-Type - KeePassXC$"] move container to workspace current
-for_window [title="mpv"] move container to workspace current, floating enable, move right 380px 
-for_window [title="^Autowpisywanie - KeePassXC$"] move container to workspace current
-for_window [title="^KeePassXC - Pick Characters$"] move container to workspace current, move up 200px
-for_window [class="^SpeedCrunch$"] floating enable
-for_window [class="^kruler$"] floating enable 
+# image viewer
+for_window [class="Image Lounge"] move container to workspace current 
+for_window [class="Image Lounge"] floating enable, resize set 600px
+for_window [class="Image Lounge"] move position center
 
-# resize window (you can also use the mouse for that)
+# pdf viewer
+for_window [class="Zathura"] move container to workspace current 
+for_window [class="Zathura"] floating enable, resize set 600px
+for_window [class="Zathura"] move position center, fullscreen
+
+# file manager
+for_window [class="Thunar"] move container to workspace current 
+for_window [class="Thunar"] floating enable, resize set 600px
+for_window [class="Thunar"] move position center
+
+# video player
+for_window [class="MPlayer"] move container to workspace current 
+for_window [class="MPlayer"] floating enable
+
+for_window [class="mpv"] move container to workspace current 
+for_window [class="mpv"] floating enable
+
+# calculator
+for_window [class="SpeedCrunch"] move container to workspace current 
+for_window [class="SpeedCrunch"] floating enable, resize set 300px
+for_window [class="SpeedCrunch"] move position center
+
+# color picker
+for_window [class="__main__.py"] move container to workspace current 
+for_window [class="__main__.py"] floating enable
+
+# ruler
+for_window [class="kruler"] move container to workspace current 
+for_window [class="kruler"] floating enable, resize set 600px
+for_window [class="kruler"] move position center
+
 mode "resize" {
-        # These bindings trigger as soon as you enter the resize mode
-
         bindsym h resize shrink width 10 px or 10 ppt
         bindsym j resize grow height 10 px or 10 ppt
         bindsym k resize shrink height 10 px or 10 ppt
         bindsym l resize grow width 10 px or 10 ppt
 
-        # back to normal: Enter or Escape or $mod+r
         bindsym Return mode "default"
         bindsym Escape mode "default"
         bindsym $mod+r mode "default"
 }
 
-# Start i3bar to display a workspace bar (plus the system information i3status
-# finds out, if available)
 bar {
-       # bindsym button1 nop
        mode hide
        tray_output none
        colors {
@@ -178,4 +199,3 @@ bar {
        }
        status_command i3status
 }
-
