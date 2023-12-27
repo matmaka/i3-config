@@ -108,6 +108,10 @@ bindsym $mod+r mode "resize"
 bindsym $mod+Shift+Return exec st -c "ST - "$ws2; workspace $ws2
 bindsym $mod+o workspace $ws1; exec firefox -P home
 bindsym $mod+Shift+o workspace $ws2; exec firefox -P work
+bindsym $mod+m exec st -t neomutt -c neomutt -e sh -c neomutt
+bindsym $mod+c exec speedcrunch
+bindsym $mod+p exec gpick
+bindsym $mod+u exec kruler
 
 # hide cursor when keyboard key is pressed
 exec xbanish -i shift
@@ -138,6 +142,8 @@ assign [ class="KeePassXC" ] $ws3
 
 # password manager
 for_window [title="Auto-Type - KeePassXC"] move container to workspace current
+for_window [title="KeePassXC - Pick Characters"] move container to workspace current
+for_window [title="KeePassXC - Pick Characters"] move position 50px 50px
 
 # image viewer
 for_window [class="Image Lounge"] move container to workspace current 
@@ -163,17 +169,35 @@ for_window [class="mpv"] floating enable
 
 # calculator
 for_window [class="SpeedCrunch"] move container to workspace current 
-for_window [class="SpeedCrunch"] floating enable, resize set 300px
+for_window [class="SpeedCrunch"] floating enable, resize set 300px 300px
 for_window [class="SpeedCrunch"] move position center
 
 # color picker
-for_window [class="__main__.py"] move container to workspace current 
-for_window [class="__main__.py"] floating enable
+for_window [class="Gpick"] move container to workspace current 
+for_window [class="Gpick"] floating enable, resize set 800px 500px
+for_window [class="Gpick"] move position center 
 
 # ruler
 for_window [class="kruler"] move container to workspace current 
 for_window [class="kruler"] floating enable, resize set 600px
 for_window [class="kruler"] move position center
+
+# mail manager
+for_window [class="neomutt"] move container to workspace current 
+for_window [class="neomutt"] floating enable, resize set 500px 300px
+for_window [class="neomutt"] move position center
+
+# thunar 
+for_window [class="Thunar"] move container to workspace current 
+for_window [class="Thunar"] floating enable, resize set 800px 500px
+for_window [class="Thunar"] move position center
+
+# firefox open file
+for_window [class="firefox" title="open file"] move container to workspace current 
+for_window [class="firefox" title="open file"] floating enable, resize set 800px 500px
+for_window [class="firefox" title="open file"] move position center
+
+gaps inner 5px
 
 mode "resize" {
         bindsym h resize shrink width 10 px or 10 ppt
