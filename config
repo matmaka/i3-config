@@ -2,35 +2,70 @@
 
 set $mod Mod1
 
-# Define names for default workspaces for which we configure key bindings later on.
-# We use variables to avoid repeating the names in multiple places.
-# home
-set $ws1 "H"
-
-# work
-set $ws2 "W"
-
-# password manager
-set $ws3 "P"
-
-# Font for window titles. Will also be used by the bar unless a different font
-# is used in the bar {} block below.
+# Font for window titles and bar
 font pango:monospace 8
 
-# Start XDG autostart .desktop files using dex. See also
-# https://wiki.archlinux.org/index.php/XDG_Autostart
-exec --no-startup-id dex --autostart --environment i3
+# gaps between windows
+gaps inner 10px
 
-# The combination of xss-lock, nm-applet and pactl is a popular choice, so
-# they are included here as an example. Modify as you see fit.
+# no-titles
+default_border pixel
+
+# Start XDG autostart .desktop files using dex.
+# See also: https://wiki.archlinux.org/index.php/XDG_Autostart
+exec --no-startup-id dex --autostart --environment i3
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
-exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
+exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock -c 000000 -f --nofork
 
-# NetworkManager is the most popular way to manage wireless networks on Linux,
-# and nm-applet is a desktop environment-independent system tray GUI for it.
-exec --no-startup-id nm-applet
+# hide cursor when typing
+exec unclutter --idle 1 --jitter 25
+
+# Home
+set $ws1 "H"
+
+# Work
+set $ws2 "W"
+
+# Password Manager
+set $ws3 "PM"
+
+# Music Player
+set $ws4 "MP"
+
+# File Manager
+set $ws5 "FM"
+
+# Graphics Editor
+set $ws6 "GE"
+
+assign [ class="ST - H" ] $ws1
+assign [ class="ST - W" ] $ws2
+assign [ class="KeePassXC" ] $ws3
+assign [ class="cmus" ] $ws4
+assign [ class="Thunar" ] $ws5
+assign [ class="vifm" ] $ws5
+assign [ class="Gimp" ] $ws6
+assign [ class="Inkscape" ] $ws6
+
+# move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6
+
+# switch to workspace
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+bindsym $mod+6 workspace $ws6
+
+bindsym $mod+x move workspace to output next
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
@@ -39,6 +74,10 @@ bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
+# !!! only with root privileges
+bindsym XF86MonBrightnessUp exec --no-startup-id xbacklight -inc 25
+bindsym XF86MonBrightnessDown exec --no-startup-id xbacklight -dec 25
+
 # start a terminal
 bindsym $mod+Return exec st -c "ST - "$ws1; workspace $ws1
 
@@ -46,7 +85,8 @@ bindsym $mod+Return exec st -c "ST - "$ws1; workspace $ws1
 bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec --no-startup-id dmenu_run 
+#bindsym $mod+d exec --no-startup-id dmenu_run 
+bindsym $mod+d exec --no-startup-id dmenu-recent-aliases
 
 # change focus
 bindsym $mod+h focus left
@@ -61,7 +101,7 @@ bindsym $mod+Shift+k move up
 bindsym $mod+Shift+l move right
 
 # split in horizontal orientation
-bindsym $mod+"n" split h
+bindsym $mod+n split h
 
 # split in vertical orientation
 bindsym $mod+v split v
@@ -77,18 +117,6 @@ bindsym $mod+e layout toggle split
 # toggle tiling / floating
 bindsym $mod+Shift+space floating toggle
 
-# switch to workspace
-bindsym $mod+1 workspace $ws1
-bindsym $mod+2 workspace $ws2
-bindsym $mod+3 workspace $ws3
-
-# move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace $ws1
-bindsym $mod+Shift+2 move container to workspace $ws2
-bindsym $mod+Shift+3 move container to workspace $ws3
-
-bindsym $mod+x move workspace to output next
-
 # reload the configuration file
 bindsym $mod+Shift+c reload
 
@@ -96,12 +124,9 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 
 # exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -B 'Yes, exit i3' 'i3-msg exit'"
 
-# bindsym $mod+p exec flatpak run org.kryogenix.Pick
-# bindsym $mod+u exec kruler
 bindsym --release $mod+Shift+End exec --no-startup-id import screenshot_$(uuidgen).png
-# bindsym $mod+b exec flatpak run org.speedcrunch.SpeedCrunch
 bindsym $mod+q exec i3lock -c 000000 -f
 bindsym $mod+space focus mode_toggle 
 bindsym $mod+r mode "resize"
@@ -109,95 +134,81 @@ bindsym $mod+Shift+Return exec st -c "ST - "$ws2; workspace $ws2
 bindsym $mod+o workspace $ws1; exec firefox -P home
 bindsym $mod+Shift+o workspace $ws2; exec firefox -P work
 bindsym $mod+m exec st -t neomutt -c neomutt -e sh -c neomutt
+bindsym $mod+t exec st -t cmus -c cmus -e sh -c cmus; workspace $ws4
+bindsym $mod+g exec st -t vifm -c vifm -e sh -c vifm; workspace $ws5
 bindsym $mod+c exec speedcrunch
 bindsym $mod+p exec gpick
 bindsym $mod+u exec kruler
+bindsym $mod+i exec kmag
 
-# hide cursor when keyboard key is pressed
-exec xbanish -i shift
+for_window [class="cmus"] workspace $ws4
 
-# terminal
-exec st -c "ST - "$ws1
-exec st -c "ST - "$ws2
+for_window [class="feh"] floating enable
+for_window [class="feh"] move position center
 
-exec xrandr --output DisplayPort-0 --auto --left-of eDP
+for_window [class="firefox" title="Developer Tools"] floating enable
+for_window [class="firefox" title="Developer Tools"] resize set 1200px 600px
+for_window [class="firefox" title="Developer Tools"] move position center
 
-# password manager
-exec keepassxc
+for_window [class="Gifview"] floating enable
+for_window [class="Gifview"] move position center 
 
-# wallpaper
-exec --no-startup-id feh --no-fehbg --bg-fill "$HOME/.desktop-bg.jpg"
-
-default_border pixel
-
-# assign a workspace to another monitor
-workspace $ws1 output DisplayPort-0 eDP
-workspace $ws2 output DisplayPort-0 eDP
-workspace $ws3 output eDP DisplayPort-0
-
-# default workspaces
-assign [ class="ST - H" ] $ws1
-assign [ class="ST - W" ] $ws2
-assign [ class="KeePassXC" ] $ws3
-
-# password manager
-for_window [title="Auto-Type - KeePassXC"] move container to workspace current
-for_window [title="KeePassXC - Pick Characters"] move container to workspace current
-for_window [title="KeePassXC - Pick Characters"] move position 50px 50px
-
-# image viewer
-for_window [class="Image Lounge"] move container to workspace current 
-for_window [class="Image Lounge"] floating enable, resize set 600px
-for_window [class="Image Lounge"] move position center
-
-# pdf viewer
-for_window [class="Zathura"] move container to workspace current 
-for_window [class="Zathura"] floating enable, resize set 600px
-for_window [class="Zathura"] move position center, fullscreen
-
-# file manager
-for_window [class="Thunar"] move container to workspace current 
-for_window [class="Thunar"] floating enable, resize set 600px
-for_window [class="Thunar"] move position center
-
-# video player
-for_window [class="MPlayer"] move container to workspace current 
-for_window [class="MPlayer"] floating enable
-
-for_window [class="mpv"] move container to workspace current 
-for_window [class="mpv"] floating enable
-
-# calculator
-for_window [class="SpeedCrunch"] move container to workspace current 
-for_window [class="SpeedCrunch"] floating enable, resize set 300px 300px
-for_window [class="SpeedCrunch"] move position center
-
-# color picker
-for_window [class="Gpick"] move container to workspace current 
-for_window [class="Gpick"] floating enable, resize set 800px 500px
+for_window [class="Gpick"] floating enable
+for_window [class="Gpick"] resize set 800px 500px
 for_window [class="Gpick"] move position center 
 
-# ruler
-for_window [class="kruler"] move container to workspace current 
-for_window [class="kruler"] floating enable, resize set 600px
+for_window [class="KeePassXC" title="^KeePassXC$"] workspace $ws3
+for_window [class="KeePassXC" title="Auto-Type"] move container to workspace current
+for_window [class="KeePassXC" title="Pick Characters"] move position 100px 100px
+for_window [class="KeePassXC" title="Pick Characters"] move container to workspace current
+for_window [class="KeePassXC" title="Unlock Database"] move position center
+for_window [class="KeePassXC" title="Unlock Database"] move container to workspace current
+
+for_window [class="kmag"] floating enable
+for_window [class="kmag"] resize set 500px 300px
+for_window [class="kmag"] move position 100px 100px
+
+for_window [class="kruler"] floating enable
+for_window [class="kruler"] resize set 600px
 for_window [class="kruler"] move position center
 
-# mail manager
-for_window [class="neomutt"] move container to workspace current 
-for_window [class="neomutt"] floating enable, resize set 500px 300px
+for_window [class="matplotlib"] floating enable
+for_window [class="matplotlib"] resize set 800px 600px
+for_window [class="matplotlib"] move position 100px 100px
+
+for_window [class="mpv"] floating enable
+for_window [class="mpv"] resize set 700px 400px
+for_window [class="mpv"] move position center
+
+for_window [class="neomutt"] floating enable
+for_window [class="neomutt"] resize set 600px 400px
 for_window [class="neomutt"] move position center
 
-# thunar 
-for_window [class="Thunar"] move container to workspace current 
-for_window [class="Thunar"] floating enable, resize set 800px 500px
-for_window [class="Thunar"] move position center
+for_window [class="Nsxiv"] floating enable
+for_window [class="Nsxiv"] resize set 700px 400px
+for_window [class="Nsxiv"] move position center
 
-# firefox open file
-for_window [class="firefox" title="open file"] move container to workspace current 
-for_window [class="firefox" title="open file"] floating enable, resize set 800px 500px
-for_window [class="firefox" title="open file"] move position center
+for_window [class="SpeedCrunch"] floating enable
+for_window [class="SpeedCrunch"] resize set 250px 250px
+for_window [class="SpeedCrunch"] move position 100px 100px
 
-gaps inner 5px
+for_window [class="Thunar"] workspace $ws5
+
+for_window [class="Xsane"] floating enable
+for_window [class="Xsane"] resize set 298px 430px
+for_window [class="Xsane"] move position center
+for_window [class="Xsane" title="multipage"] resize set 350px 400px
+for_window [class="Xsane" title="multipage"] move position 0px 0px
+for_window [class="Xsane" title="Preview"] move position 0px 350px
+for_window [class="Xsane" title="Viewer"] fullscreen
+for_window [class="Xsane" title="Viewer"] resize set 800px 900px
+for_window [class="Xsane" title="Viewer"] move position center
+
+for_window [class="vifm"] workspace $ws5
+
+for_window [class="Zathura"] floating enable
+for_window [class="Zathura"] resize set 500px 700px
+for_window [class="Zathura"] move position 100px 100px
 
 mode "resize" {
         bindsym h resize shrink width 10 px or 10 ppt
@@ -205,9 +216,9 @@ mode "resize" {
         bindsym k resize shrink height 10 px or 10 ppt
         bindsym l resize grow width 10 px or 10 ppt
 
-        bindsym Return mode "default"
-        bindsym Escape mode "default"
         bindsym $mod+r mode "default"
+        bindsym Escape mode "default"
+        bindsym Return mode "default"
 }
 
 bar {
